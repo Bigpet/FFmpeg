@@ -391,10 +391,26 @@ static int read_key(void)
         is_pipe = !GetConsoleMode(input_handle, &dw);
     }
 
-    if (stdin->_cnt > 0) {
-        read(0, &ch, 1);
-        return ch;
+    while (TRUE){
+        DWORD wait_status = WaitForSingleObject(input_handle, 0);
+        if (wait_status == WAIT_OBJECT_0){
+            if (kbhit()){
+                ch = getch();
+                return ch;
+            }
+            else{
+                //clean non-keyboard events from the console buffer
+                INPUT_RECORD records[128];
+                DWORD recs_read = 0;
+                BOOL success = ReadConsoleInput(input_handle, records, 128, &recs_read);
+                if (!success || recs_read == 0)
+                    break;
+            }
+        }
+        else
+            break;
     }
+
     if (is_pipe) {
         /* When running under a GUI, you will end here. */
         if (!PeekNamedPipe(input_handle, NULL, 0, NULL, &nchars, NULL)) {
