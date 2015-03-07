@@ -391,7 +391,8 @@ static int read_key(void)
         is_pipe = !GetConsoleMode(input_handle, &dw);
     }
 
-    if (stdin->_cnt > 0) {
+    DWORD wait_status = WaitForSingleObject(stdin, 0);
+    if (wait_status == WAIT_OBJECT_0) {
         read(0, &ch, 1);
         return ch;
     }
