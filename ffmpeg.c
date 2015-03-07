@@ -391,8 +391,8 @@ static int read_key(void)
         is_pipe = !GetConsoleMode(input_handle, &dw);
     }
 
-    if (stdin->_cnt > 0) {
-        read(0, &ch, 1);
+    if (kbhit()) {
+        ch = getch();
         return ch;
     }
     if (is_pipe) {
